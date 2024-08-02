@@ -1,13 +1,9 @@
 cmake_minimum_required(VERSION 3.0)
 
 set (CMAKE_CXX_STANDARD 17)
-project(project_name)
+project(ppm_viewer)
 
-add_subdirectory(third_party)
-
-set(SRC_DIR ./src/)
-add_executable(executable_name
-    "${SRC_DIR}/main.cpp"
+set(SRC_DIR ./src)
+add_executable(ppm_viewer
+    "${SRC_DIR}/main.cc"
 )
-find_package(OpenGL REQUIRED)
-target_link_libraries(executable_name glfw imgui OpenGL::GL)
