@@ -20,7 +20,7 @@ struct PPMImage {
   std::vector<Pixel> pixels;
 };
 
-std::ifstream& operator>>(std::ifstream& ifs, Pixel& pixel) {
+std::ifstream &operator>>(std::ifstream &ifs, Pixel &pixel) {
   std::string num;
   ifs >> num;
   pixel.r = std::atoi(num.c_str());
@@ -31,7 +31,7 @@ std::ifstream& operator>>(std::ifstream& ifs, Pixel& pixel) {
   return ifs;
 }
 
-PPMImage ReadPPM(const std::filesystem::path& filename) {
+PPMImage ReadPPM(const std::filesystem::path &filename) {
   std::ifstream file(filename, std::ios::binary);
   if (!file.is_open()) {
     throw std::runtime_error("Could not open file.");
@@ -67,34 +67,30 @@ PPMImage ReadPPM(const std::filesystem::path& filename) {
   return image;
 }
 
-int main(int argc, char* argv[]) {
-  if (argc < 2) {
-    std::cerr << "Usage: " << argv[0] << " <path_to_file>" << std::endl;
+int main(int argc, char *argv[]) {
+  if (argc < 3) {
+    std::cerr << "Usage: " << argv[0] << " <path_to_file> <output_file>" << std::endl;
     return 1;
   }
 
   try {
-    std::filesystem::path filename = argv[1];
-    PPMImage image = ReadPPM(filename);
-    std::cout << "File Name: " << std::filesystem::absolute(filename).string()
-              << '\n';
+    std::filesystem::path input_filename = argv[1];
+    std::filesystem::path output_filename = argv[2];
+
+    PPMImage image = ReadPPM(input_filename);
+    std::cout << "File Name: " << std::filesystem::absolute(input_filename).string() << '\n';
     std::cout << "Width: " << image.width << "\n";
     std::cout << "Height: " << image.height << "\n";
     std::cout << "Max Color Value: " << image.max_color_value << "\n";
-    stbi_write_png("result.png", image.width, image.height, 3,
-                   image.pixels.data(), image.width * 3);
 
-    // Convert std::string to LPCSTR and open file by ShellExecute
-    LPCSTR lpFile = "result.png";
-    HINSTANCE result =
-        ShellExecute(NULL, "open", lpFile, NULL, NULL, SW_SHOWNORMAL);
-
-    // If result is less than or equal to 32, there was an error
-    if ((int)result <= 32) {
-      std::cerr << "Error opening file. Error code: " << (int)result
-                << std::endl;
+    // Save the image to the specified output file
+    if (output_filename.extension() == ".png") {
+      stbi_write_png(output_filename.string().c_str(), image.width, image.height, 3, image.pixels.data(), image.width * 3);
+    } else {
+      std::cerr << "Unsupported output file format. Only PNG is supported." << std::endl;
+      return 1;
     }
-  } catch (const std::exception& e) {
+  } catch (const std::exception &e) {
     std::cerr << "Error: " << e.what() << "\n";
   }
   return 0;
